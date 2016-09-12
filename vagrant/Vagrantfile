@@ -1,0 +1,22 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+unless Vagrant.has_plugin?("vagrant-hostmanager")
+	system("vagrant plugin install vagrant-hostmanager")
+	raise("Plugin installed. Run command again.");
+end
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "relativkreativ/centos-7-minimal"
+
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = true
+  config.hostmanager.ignore_private_ip = false
+  config.hostmanager.include_offline = true
+  config.vm.define 'build-pipeline' do |node|
+    node.vm.hostname = 'build-pipeline'
+    node.vm.network :private_network, ip: "192.168.50.42"
+    node.hostmanager.aliases = %w(e6520)
+  end
+  config.vm.provision "shell", inline: ". /vagrant/scripts/provision.sh; provision"
+end
